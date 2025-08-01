@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync'); // Adjust the path as necessa
 require('dotenv').config();
 
 const connectDB = catchAsync( async () => {
-    await mongoose.connect(process.env.MONGO_URI, {
+    await mongoose.connect(process.env.DATABASE_LOCAL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
