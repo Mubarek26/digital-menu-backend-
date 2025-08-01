@@ -3,10 +3,13 @@ const mongoose = require('mongoose');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/globalErrorHandler');
 const dotenv = require('dotenv');
+const menuRoutes = require('./routes/menuRoutes'); // Import menu routes
 dotenv.config(); // Load environment variables
 const app = express();
 app.use(express.json());
-// const mongoSanitize = require('express-mongo-sanitize');
+
+//routes to handle menu items
+app.use('/api/v1/menu', menuRoutes); // Import and use menu routes
 
 app.all('*', (req, res, next) => {
   const error = new AppError(
