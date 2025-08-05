@@ -23,7 +23,7 @@ router.route('/updateMe').patch( userControllers.updateMe); // Route to update u
 router.route('/deleteMe').delete(userControllers.deleteMe); // Route to delete user profile
 
 // Restrict all routes after this middleware to admin users
-router.use(authController.restrictTo('admin,user')); // Restrict all routes after this middleware to admin users
+router.use(authController.restrictTo('admin')); // Restrict all routes after this middleware to admin users
 
 router
     .route('/')

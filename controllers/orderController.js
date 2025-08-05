@@ -87,3 +87,107 @@ exports.updateOrderStatus = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getAllTotalRevenue = catchAsync(async (req, res, next) => {
+  const result = await Order.aggregate([
+    {
+      $match: { status: "completed" }, // Assuming you want to calculate revenue for completed orders
+    },
+
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: "$totalPrice" },
+      },
+    },
+  ]);
+  res.status(200).json({
+    status: "success",
+    message: "Total revenue calculated successfully",
+    data: {
+      totalRevenue: result.length > 0 ? result[0].totalRevenue : 0, // If no completed orders, return 0
+    },
+  });
+});
+
+// Get total number of orders
+exports.getTotalOrders = catchAsync(async (req, res, next) => {
+  const totalOrders = await Order.countDocuments();
+  res.status(200).json({
+    status: "success",
+    message: "Total orders retrieved successfully",
+    data: {
+      totalOrders, // This should be replaced with actual data from the database
+    },
+  });
+});
+
+exports.getTopSellingItems = catchAsync(async (req, res, next) => {
+  const result = await Order.aggregate([
+    {
+      $unwind: "$items" // Unwind the items array to get individual items
+    },
+    {
+      $lookup: {
+        from: "menuitems", // Assuming the collection name for MenuItem is "menuitems"
+        localField: "items.name",
+        foreignField: "name",
+        as: "menuItemInfo"
+    }
+    },
+    {
+      $unwind: "$menuItemInfo" // Unwind the menuItemInfo array to get individual menu item details
+  },
+    {
+      $group: {
+        _id: "$items.name",
+        totalSold: { $sum: "$items.quantity" },
+        totalRevenue: { $sum: { $multiply: ["$items.quantity", "$menuItemInfo.price"] } },
+      },
+    },
+    {
+      $sort: { totalSold: -1 } // Sort by total sold in descending order
+    },
+    {
+      $limit: 10 // Limit to top 10 selling items
+    }
+  ]);
+  res.status(200).json({
+    status: "success",
+    message: "Top selling items retrieved successfully",
+    data: {
+      topSellingItems: result, // This should be replaced with actual data from the database
+    },
+  })
+});
+const thirtyDaysAgo = new Date();
+thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+exports.activeCustomers = catchAsync(async (req, res, next) => {
+  const result = await Order.aggregate([
+    
+      {
+      $match: {
+        createdAt: { $gte: thirtyDaysAgo }, // Filter orders from the last 30 days
+      },
+    },
+    {
+      $group: {
+        _id: "$phoneNumber", // Group by phone number
+        orders: { $sum: 1 },
+        totalSpent: { $sum: "$totalPrice" }
+      }
+    }
+  ])
+  
+
+
+  
+  res.status(200).json({
+    status: "success",
+    message: "Active customers retrieved successfully",
+    data: {
+      activeCustomers: result, // This should be replaced with actual data from the database
+    },
+  })
+})
