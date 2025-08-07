@@ -3,11 +3,14 @@ const express = require("express");
 const router = express.Router();
 const uploadImage=require('../middlewares/uploadImage')
 const menuController = require("../controllers/menuController"); // Import menu controller
-const {protect}=require('../controllers/authController')
+const authController = require('../controllers/authController')
+
+router.use(authController.protect); // Protect all routes after this middleware
+router.use(authController.restrictTo("admin","super admin"));
 router
   .route("/")
   .get(menuController.getAllMenuItems) // Get all menu items
-  .post(protect, uploadImage, menuController.createMenuItem); // Create a new menu item
+  .post(authController.protect, uploadImage, menuController.createMenuItem); // Create a new menu item
 
 router
   .route("/:id")

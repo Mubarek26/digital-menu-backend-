@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'lead-guide', 'guide'],
+    enum: ['user', 'admin', 'super admin'],
     default: 'user',
   },
   passwordChangedAt: Date,
@@ -58,9 +58,9 @@ userSchema.pre('save', async function (next) {
   next(); // Proceed to the next middleware
 });
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this.passwordChangedAt = Date.now() - 1000;
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now()-1000;
   next();
 });
 
@@ -71,16 +71,22 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
       10
     );
+    
+    console.log('🔍 JWT issued at:', JWTTimestamp);
+    console.log('🔍 Password changed at:', changedTimestamp);
+    console.log('🔍 Changed after?', JWTTimestamp < changedTimestamp);
     return JWTTimestamp < changedTimestamp; // Return true if password was changed after the token was issued
   }
   return false; // If no passwordChangedAt, return false
 };
+
 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex'); // Generate a random token
@@ -92,6 +98,7 @@ userSchema.methods.createPasswordResetToken = function () {
   console.log({ resetToken }, this.resetPasswordToken);
   return resetToken;
 };
+
 
 // userSchema.pre(/^find/, function (next) {
 //   this.find({ active: { $ne: false } }); // Exclude inactive users from all queries

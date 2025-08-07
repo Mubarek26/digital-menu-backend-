@@ -39,7 +39,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     photo: req.body.photo || 'default.jpg', // Default photo if not provided
-    passwordChangedAt: req.body.passwordChangedAt || Date.now(),
+    // passwordChangedAt: req.body.passwordChangedAt || Date.now(),
     role: req.body.role || 'user', // Default role if not provided
   });
    createSendToken(newUser, 200, res);
@@ -211,6 +211,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   // 3. If so, update password
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
+
   await user.save();
   // 4. Log user in, send JWT
   const token = await singToken(user._id);
