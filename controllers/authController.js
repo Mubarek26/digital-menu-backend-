@@ -22,8 +22,10 @@ const createSendToken =catchAsync( async (user, statusCode, res) => {
     ),
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   };
   res.cookie('jwt', token, cookieOptions);
+  console.log(`JWT cookie set: ${token}`);
   res.status(statusCode).json({
     status: 'success',
     token,
