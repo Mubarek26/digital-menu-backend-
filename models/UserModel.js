@@ -38,8 +38,18 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'super admin'],
-    default: 'user',
+    enum: ['employee', 'admin', 'manager'],
+    default: 'employee',
+  },
+  phoneNumber: {
+    type: String,
+    required: [true, 'A user must have a phone number'],
+    // validate: {
+    //   validator: function (v) {
+    //     return /^\d{9}$/.test(v);
+    //   },
+    //   message: 'Please provide a valid phone number!',
+    // },
   },
   passwordChangedAt: Date,
   resetPasswordToken: String,

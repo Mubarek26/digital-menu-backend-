@@ -22,6 +22,7 @@ app.use(cors({
 app.use('/images', express.static(path.join(__dirname, 'uploads/foods')));
 
 //routes to handle menu items
+
 app.use('/api/v1/menu', menuRoutes); // Import and use menu routes
 app.use('/api/v1/order', orderRoutes); // Import and use menu routes
 app.use('/api/v1/users', userRouter);
