@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema({
     default: 'employee',
   },
   phoneNumber: {
-    type: String,
+    type: Number,
     required: [true, 'A user must have a phone number'],
     // validate: {
     //   validator: function (v) {

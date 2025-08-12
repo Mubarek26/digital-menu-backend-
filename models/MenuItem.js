@@ -19,7 +19,7 @@ const menuItemSchema = new mongoose.Schema({
     category: {
         type: String,
         required: [true, 'Menu item must have a category'],
-         enum: ['Starter', 'Main Course', 'Dessert', 'Drink', 'Other'],
+        //  enum: ['Starter', 'Main Course', 'Dessert', 'Drink', 'Appetizer'],
     },
     isAvailable: {
         type: Boolean,

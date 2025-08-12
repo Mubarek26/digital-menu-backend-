@@ -6,11 +6,11 @@ const menuController = require("../controllers/menuController"); // Import menu 
 const authController = require('../controllers/authController')
 
 router.use(authController.protect); // Protect all routes after this middleware
-router.use(authController.restrictTo("admin","super admin"));
+router.use(authController.restrictTo("admin","manager"));
 router
   .route("/")
   .get(menuController.getAllMenuItems) // Get all menu items
-  .post(authController.protect, uploadImage, menuController.createMenuItem); // Create a new menu item
+  .post(uploadImage, menuController.createMenuItem); // Create a new menu item
 
 router
   .route("/:id")
