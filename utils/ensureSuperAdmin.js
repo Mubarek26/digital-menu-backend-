@@ -11,14 +11,48 @@ async function ensureSuperAdmin() {
       return;
     }
 
-    const existing = await User.findOne({ role: 'superadmin' }).select('+active');
+    // Try finding by email first, then by phoneNumber
+    let existing = await User.findOne({ email }).select('+active +password');
+    if (!existing) {
+      existing = await User.findOne({ phoneNumber }).select('+active +password');
+    }
+
     if (existing) {
-      if (existing.active === false) {
+      let modified = false;
+
+      if (existing.email !== email) {
+        existing.email = email;
+        modified = true;
+      }
+
+      if (existing.phoneNumber !== phoneNumber) {
+        existing.phoneNumber = phoneNumber;
+        modified = true;
+      }
+
+      if (existing.role !== 'superadmin') {
+        existing.role = 'superadmin';
+        modified = true;
+      }
+
+      if (existing.active !== true) {
         existing.active = true;
+        modified = true;
+      }
+
+      // Check if password has changed from env
+      const isCorrectPassword = await existing.correctPassword(password, existing.password);
+      if (!isCorrectPassword) {
+        existing.password = password;
+        existing.passwordConfirm = password;
+        modified = true;
+      }
+
+      if (modified) {
         await existing.save({ validateBeforeSave: false });
-        console.log('Super admin reactivated.');
+        console.log('Super admin credentials updated/reactivated.');
       } else {
-        console.log('Super admin already exists.');
+        console.log('Super admin already exists and is up to date.');
       }
       return;
     }
